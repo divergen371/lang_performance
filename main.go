@@ -5,48 +5,21 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"time"
 )
 
-func calcInnerSum(u int) int {
-	sum := 0
-	// 0からu-1までの余りの合計を計算
-	for i := 0; i < u; i++ {
-		sum += i
-	}
-	// その結果を使って全体の合計を計算
-	quotient := 99999 / u
-	remainder := 99999 % u
-
-	// 完全なu個のグループの合計
-	total := sum * quotient
-
-	// 残りの数の合計
-	for i := 0; i <= remainder; i++ {
-		total += i % u
-	}
-
-	return total
-}
-
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
-	u, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		panic(err)
+	input, e := strconv.Atoi(os.Args[1]) // Get an input number from the command line
+	if e != nil {
+		panic(e)
 	}
-
-	r := rand.Intn(10000)
-	a := make([]int, 10000)
-
-	// 内部ループの計算を1回だけ行う
-	innerSum := calcInnerSum(u)
-
-	// 配列の更新を最適化
-	for i := 0; i < 10000; i++ {
-		a[i] = innerSum + r
+	u := int32(input)
+	r := rand.Int31n(10000)             // Get a random number 0 <= r < 10k
+	var a [10000]int32                  // Array of 10k elements initialized to 0
+	for i := int32(0); i < 10000; i++ { // 10k outer loop iterations
+		for j := int32(0); j < 100000; j++ { // 100k inner loop iterations, per outer loop iteration
+			a[i] = a[i] + j%u // Simple sum
+		}
+		a[i] += r // Add a random value to each element in array
 	}
-
-	fmt.Println(a[r])
+	fmt.Println(a[r]) // Print out a single element from the array
 }

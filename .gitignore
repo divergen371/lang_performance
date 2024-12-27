@@ -1,1 +1,23 @@
-/target
+# Compiled files
+*.class
+*.beam
+*.o
+*.hi
+*.tasty
+go_bench
+c_bench
+benchmark_go
+main
+
+# Build directories
+dist-newstyle/
+target/
+.venv/
+
+# Temporary files
+temp_*.json
+erl_crash.dump
+
+# IDE files
+.idea/
+.vscode/

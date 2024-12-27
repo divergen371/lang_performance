@@ -1,28 +1,18 @@
-object BenchmarkScala {
-    // 関数型スタイルで内部合計を計算
-    def calcInnerSum(u: Int): Int = {
-        // 0からu-1までの余りの合計を計算（関数型の特徴を活用）
-        val baseSum = (0 until u).sum
-        
-        // 完全なu個のグループの数と余りを計算
-        val quotient = 99999 / u
-        val remainder = 99999 % u
-        
-        // 合計を計算
-        val total = baseSum * quotient + 
-                   (0 to remainder).map(_ % u).sum
-        
-        total
-    }
+import java.util.Random
 
-    def main(args: Array[String]): Unit = {
-        val u = args(0).toInt
-        val r = scala.util.Random.nextInt(10000)
-        
-        // 不変配列を使用（Scalaの特徴を活用）
-        val innerSum = calcInnerSum(u)
-        val a = Array.fill(10000)(innerSum + r)
-        
-        println(a(r))
-    }
+object BenchmarkScala {
+  def main(args: Array[String]): Unit = {
+    val u = args(0).toInt // Get an input number from the command line
+    val r = Random().nextInt(10000) // Get a random number 0 <= r < 10k
+    val a = new Array[Int](10000) // Array of 10k elements initialized to 0
+    var i = 0
+    while i < 10000 do // 10k outer loop iterations
+      var j = 0
+      while j < 100000 do // 100k inner loop iterations, per outer loop iteration
+        a(i) = a(i) + j % u // Simple sum
+        j += 1
+      a(i) += r // Add a random value to each element in array
+      i += 1
+    println(a(r)) // Print out a single element from the array
+  }
 }

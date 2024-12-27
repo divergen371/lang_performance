@@ -1,0 +1,21 @@
+{
+  "name": "scala-cli",
+  "argv": [
+    "/Users/atsushi/Library/Application Support/Coursier/bin/.scala-cli.aux",
+    "bsp",
+    "--json-options",
+    "/Users/atsushi/lang_performance/.scala-build/ide-options-v2.json",
+    "--json-launcher-options",
+    "/Users/atsushi/lang_performance/.scala-build/ide-launcher-options.json",
+    "--envs-file",
+    "/Users/atsushi/lang_performance/.scala-build/ide-envs.json",
+    "/Users/atsushi/lang_performance/base.scala",
+    "/Users/atsushi/lang_performance/BenchmarkScala.scala"
+  ],
+  "version": "1.5.0",
+  "bspVersion": "2.1.1",
+  "languages": [
+    "scala",
+    "java"
+  ]
+}
