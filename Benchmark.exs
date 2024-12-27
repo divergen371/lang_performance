@@ -16,6 +16,11 @@ defmodule Benchmark do
     base_sum * quotient + remainder_sum
   end
 
+  # 配列の一部を計算する関数
+  defp calculate_chunk(start, size, value) do
+    List.duplicate(value, size)
+  end
+
   def main([arg]) do
     try do
       u = String.to_integer(arg)
@@ -25,17 +30,17 @@ defmodule Benchmark do
 
       # 内部ループの計算を1回だけ行う
       inner_sum = calc_inner_sum(u)
+      value = inner_sum + r
 
       # 並列処理を使用して配列を初期化
       chunk_size = 1000
-      result = 0..9999
-      |> Flow.from_enumerable(max_demand: 1, stages: System.schedulers_online())
-      |> Flow.chunk_every(chunk_size)
-      |> Flow.map(fn chunk ->
-        chunk
-        |> Enum.map(fn _ -> inner_sum + r end)
+      result = 0..9
+      |> Enum.map(fn i ->
+        Task.async(fn ->
+          calculate_chunk(i * chunk_size, chunk_size, value)
+        end)
       end)
-      |> Enum.to_list()
+      |> Task.await_many(:infinity)
       |> List.flatten()
       |> :array.from_list()
 

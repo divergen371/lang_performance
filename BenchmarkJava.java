@@ -1,23 +1,25 @@
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
-import java.util.stream.IntStream;
 
 public class BenchmarkJava {
-    // JITコンパイラのヒント
-    @HotSpotIntrinsicCandidate
+    // 内部ループの計算を行う関数
     private static int calcInnerSum(int u) {
         // 0からu-1までの余りの合計を計算
-        int baseSum = IntStream.range(0, u).sum();
+        int baseSum = 0;
+        for (int i = 0; i < u; i++) {
+            baseSum += i;
+        }
         
         // 完全なu個のグループの数と余りを計算
         int quotient = 99999 / u;
         int remainder = 99999 % u;
         
         // 合計を計算
-        int remainderSum = IntStream.rangeClosed(0, remainder)
-            .map(x -> x % u)
-            .sum();
+        int remainderSum = 0;
+        for (int i = 0; i <= remainder; i++) {
+            remainderSum += i % u;
+        }
         
         return baseSum * quotient + remainderSum;
     }
