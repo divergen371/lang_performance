@@ -4,22 +4,68 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"runtime"
 	"strconv"
+	"sync"
 )
 
+// 内部ループの計算を行う関数
+func calcInnerSum(u uint32) uint32 {
+	var baseSum uint32
+	for i := uint32(0); i < u; i++ {
+		baseSum += i
+	}
+
+	quotient := uint32(99999) / u
+	remainder := uint32(99999) % u
+
+	var remainderSum uint32
+	for i := uint32(0); i <= remainder; i++ {
+		remainderSum += i % u
+	}
+
+	return baseSum*quotient + remainderSum
+}
+
 func main() {
-	input, e := strconv.Atoi(os.Args[1]) // Get an input number from the command line
-	if e != nil {
-		panic(e)
+	if len(os.Args) != 2 {
+		fmt.Fprintf(os.Stderr, "Usage: %s <number>\n", os.Args[0])
+		os.Exit(1)
 	}
-	u := int32(input)
-	r := rand.Int31n(10000)             // Get a random number 0 <= r < 10k
-	var a [10000]int32                  // Array of 10k elements initialized to 0
-	for i := int32(0); i < 10000; i++ { // 10k outer loop iterations
-		for j := int32(0); j < 100000; j++ { // 100k inner loop iterations, per outer loop iteration
-			a[i] = a[i] + j%u // Simple sum
+
+	input, err := strconv.ParseUint(os.Args[1], 10, 32)
+	if err != nil {
+		panic(err)
+	}
+	u := uint32(input)
+
+	r := uint32(rand.Int31n(10000))
+
+	// 内部ループの計算を1回だけ行う
+	innerSum := calcInnerSum(u)
+
+	// 配列の初期化を並列化
+	a := make([]uint32, 10000)
+	numCPU := runtime.NumCPU()
+	var wg sync.WaitGroup
+	chunkSize := (10000 + numCPU - 1) / numCPU
+
+	for i := 0; i < numCPU; i++ {
+		wg.Add(1)
+		start := i * chunkSize
+		end := start + chunkSize
+		if end > 10000 {
+			end = 10000
 		}
-		a[i] += r // Add a random value to each element in array
+
+		go func(start, end int) {
+			defer wg.Done()
+			for i := start; i < end; i++ {
+				a[i] = innerSum + r
+			}
+		}(start, end)
 	}
-	fmt.Println(a[r]) // Print out a single element from the array
+
+	wg.Wait()
+	fmt.Println(a[r])
 }
